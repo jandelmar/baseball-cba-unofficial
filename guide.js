@@ -16,20 +16,42 @@ const chapters = [
 ];
 
 const situations = [
-  {title:'Jak vznikne bod?', start:'Běžec čeká na třetí metě. Spoluhráč odpálí po zemi do pole.', path:'M75 103 L130 158', result:'Běžec se dotkne domácí mety a pálkař bezpečně doběhne na první. V této rozehře nedojde k třetímu autu, takže útok získá jeden bod.'},
-  {title:'Proč stačí šlápnout na metu?', start:'První meta je obsazená. Po odpalu po zemi potřebuje pálkař první metu a běžec ji musí uvolnit.', path:'M185 103 L137 55', mark:[130,48,'Aut na metě'], result:'Obránce drží míč a dotkne se druhé mety dřív než nucený běžec. Běžec je aut, i když se ho obránce nedotkl.'},
-  {title:'Kdy musí obránce tečovat?', start:'Běžec je na druhé metě, první je volná. Po odpalu po zemi se rozhodne běžet na třetí.', path:'M130 48 L107 71', mark:[103,75,'Teč běžce'], result:'Běžec postupuje dobrovolně. Obránce ho mezi metami vyřadí dotykem míče nebo rukavice s míčem. Samotné došlápnutí na třetí metu nestačí.'},
-  {title:'Kdy vyběhnout po vysokém odpalu?', start:'Je jeden aut a běžec stojí na třetí. Pálkař odpálí vysoko do vnějšího pole.', path:'M75 103 L130 158', mark:[201,55,'Chycený odpal'], result:'Polař odpal chytí ze vzduchu a pálkař je druhý aut. Běžec, který zůstal na třetí až do prvního dotyku polaře s míčem, může vyrazit domů. Pokud doběhne bezpečně, bod platí.'}
+  {title:'Jak vznikne bod?', start:'Běžec stojí na třetí metě. Spoluhráč odpálí po zemi do pole.', path:'M75 103 L130 158', result:'Běžec se dotkne domácí mety. Ani po skončení rozehry nemá obrana víc než dva auty, takže útok získá bod.'},
+  {title:'Proč stačí šlápnout na metu?', start:'První meta je obsazená. Po odpalu po zemi běží pálkař na první a běžec ji musí uvolnit.', path:'M185 103 L137 55', batterPath:'M130 158 L179 109', mark:[130,48,'Aut na metě'], result:'Obránce drží míč a dotkne se druhé mety dřív než nucený běžec. Běžec je aut, i když se ho obránce nedotkl.'},
+  {title:'Kdy musí obránce tečovat?', start:'Běžec je na druhé metě a první je volná. Pálkař po odpalu běží na první, takže běžec může zůstat na druhé. Rozhodne se ale běžet na třetí.', path:'M130 48 L107 71', mark:[103,75,'Teč běžce'], result:'Běžec postupuje dobrovolně. Obránce ho mezi metami vyřadí dotykem míče nebo rukavice s míčem. Samotné došlápnutí na třetí metu nestačí.'},
+  {title:'Kdy vyběhnout po vysokém odpalu?', start:'Je jeden aut a běžec stojí na třetí. Pálkař odpálí vysoko do vnějšího pole.', path:'M75 103 L130 158', mark:[201,55,'Chycený odpal'], result:'Polař odpal chytí ze vzduchu a pálkař je druhý aut. Běžec smí vyběhnout od prvního dotyku polaře s míčem. Pokud vyběhl dřív, může se od tohoto okamžiku třetí mety znovu dotknout a pak běžet domů. Pokud to neudělá, obrana ho může vyautovat hrou na výzvu na třetí metě. Pokud běžec vyrazil správně a bezpečně doběhne domů, bod platí.'}
 ];
+
+const thirdOut = {
+  start:'Jsou dva auty. V obou případech běžec ze třetí doběhne domů dřív, než obrana zahraje třetí aut.',
+  plays:[
+    {title:'Nucený postup', path:'M75 103 L130 158 M185 103 L137 55', batterPath:'M130 158 L179 109', mark:[130,48,'Třetí aut'], result:'Obsazené jsou všechny mety. Po odpalu obrana zahraje třetí aut na druhé metě při nuceném postupu. Bod se nepočítá.'},
+    {title:'Dobrovolný postup', path:'M75 103 L130 158 M130 48 L107 71', mark:[103,75,'Třetí aut'], result:'První meta je volná. Běžec z druhé se po odpalu vydá na třetí a obrana ho tečuje mezi metami. Bod platí.'}
+  ]
+};
+
+const u7Play = {
+  title:'U7 · Proč běžec zastaví na třetí?', start:'Běžec stojí na druhé. Spoluhráč odpálí ze stativu až do zadního pole.',
+  path:'M130 48 L75 103', note:[75,130,'Tady běžec zastaví.'],
+  result:'Běžec smí doběhnout na třetí. V U7 může při jedné rozehře postoupit nejvýše o jednu metu. Na domácí může běžet při další rozehře.'
+};
+
+const playerPitchPlay = {
+  title:'U10 a U11 · Kdy vyběhnout při hráčském nadhozu?', start:'Běžec stojí na první metě a nadhazuje hráč.',
+  path:'M185 103 L137 55', note:[180,129,'Start z první mety'],
+  result:'Běžec smí vyrazit po odpalu nebo jakmile nadhoz proletí kolem pálkaře. Při trenérském nadhozu v U10 může vyběhnout až po odpalu.'
+};
 
 function drawPlay(play, index) {
   const arrow = 'run-arrow-' + index;
-  return `<svg viewBox="0 0 260 206" role="img" aria-label="${play.title} Šipka ukazuje směr běhu popsaný pod obrázkem.">
+  return `<svg viewBox="0 0 260 206" role="img" aria-label="${play.title} Šipky ukazují směr běhu.">
     <defs><marker id="${arrow}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="3" markerHeight="3" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#163e30"/></marker></defs>
     <path d="M130 158L24 52Q130 -48 236 52Z" fill="#cfeac4"/>
     <path d="M130 158L185 103L130 48L75 103Z" fill="#edd5ae" stroke="#fff" stroke-width="3"/>
     <g fill="white" stroke="#496955" stroke-width="2">${[[75,103],[185,103],[130,48],[130,158]].map(([x,y])=>`<rect x="-4" y="-4" width="8" height="8" transform="translate(${x} ${y}) rotate(45)"/>`).join('')}</g>
     <path d="${play.path}" stroke="#163e30" stroke-width="5" fill="none" marker-end="url(#${arrow})"/>
+    ${play.batterPath ? `<path d="${play.batterPath}" stroke="#163e30" stroke-width="4" stroke-dasharray="5 4" fill="none" marker-end="url(#${arrow})"/>` : ''}
+    ${play.note ? `<text x="${play.note[0]}" y="${play.note[1]}" fill="#173c2c" font-size="11" font-weight="800" text-anchor="middle">${play.note[2]}</text>` : ''}
     ${play.mark ? `<circle cx="${play.mark[0]}" cy="${play.mark[1]}" r="6" fill="#a0332d" stroke="white" stroke-width="2"/><text x="${play.mark[0] < 150 ? play.mark[0]+12 : play.mark[0]}" y="${play.mark[1]+19}" fill="#841e19" font-size="11" font-weight="800" text-anchor="${play.mark[0] < 150 ? 'start' : 'middle'}">${play.mark[2]}</text>` : ''}
     <g fill="#173c2c" font-size="13" font-weight="700" text-anchor="middle"><text x="214" y="109">1. meta</text><text x="130" y="34">2. meta</text><text x="45" y="109">3. meta</text><text x="130" y="184">domácí</text></g></svg>`;
 }
@@ -92,6 +114,20 @@ function renderCategoryCard(item, competitionLink) {
   </article>`;
 }
 
+function renderSituations(category) {
+  const categoryPlay = category === 'U7' ? u7Play : ['U10', 'U11'].includes(category) ? playerPitchPlay : null;
+  const renderCard = (play, index) => `<figure><h4>${play.title}</h4>${drawPlay(play, index)}<figcaption><p>${play.start}</p><p>${play.result}</p></figcaption></figure>`;
+  return `<section class="guide-block"><h3>Herní situace na hřišti</h3>
+    <p>Plná šipka ukazuje cestu běžce, přerušovaná cestu pálkaře po odpalu. Červený bod označuje místo zákroku obrany. První příklady popisují standardní baseball.${category !== 'vse' ? ' Pro '+category+' zohledni také pravidla běhu a ukončení rozehry uvedená výše.' : ''}</p>
+    <div class="plays">
+      ${situations.map(renderCard).join('')}
+      <article class="third-out"><h4>Počítá se bod při třetím autu?</h4><p>${thirdOut.start}</p>
+        <div class="plays">${thirdOut.plays.map((play, index) => `<figure><h5>${play.title}</h5>${drawPlay(play, situations.length + index)}<figcaption><p>${play.result}</p></figcaption></figure>`).join('')}</div>
+      </article>
+      ${categoryPlay ? renderCard(categoryPlay, situations.length + thirdOut.plays.length) : ''}
+    </div></section>`;
+}
+
 function showGuide(item) {
   const category = item?.id || 'vse';
   const sourcePage = {U7:18,U8:17,U9:16,U10:15,U11:15,U13:14};
@@ -110,8 +146,7 @@ function showGuide(item) {
     <p>${item ? 'Následuje základní baseball. Při utkání použij výše uvedené úpravy pro '+item.id+' a propozice soutěže.' : 'Otevři téma pro stručný výklad nebo přejdi přímo na úplné znění pravidel.'}</p>
     ${chapters.map(([label,page,body],i)=>`<details class="chapter"><summary>${i+1}. ${label}</summary><p>${body}</p>${i===4 ? '<p>Odpal chycený ze vzduchu vyřadí pálkaře. Běžný foul-ball přidá strajk jen při méně než dvou strajcích. Ulejvka do zámezí při dvou strajcích znamená aut. Bod platí, pokud běžec správně dosáhne domácí mety před třetím autem. Z rozehry se žádný bod nezapočítá, pokud třetí aut padne při nuceném postupu nebo je běžící pálkař aut před dotykem první mety. Bod následujícího běžce také propadá, pokud je předchozí běžec třetím autem za vynechání mety.</p>' : ''}<p>${pdfLink(rulebook+'#page='+page,'Kapitola '+(i+1)+' v oficiálních pravidlech')}</p></details>`).join('')}
     ${pdfReader(rulebook, 'Číst úplná oficiální pravidla baseballu 2026')}</section>
-    <section class="guide-block"><h3>Herní situace na hřišti</h3><p>Šipka ukazuje cestu běžce, červený bod označuje místo zákroku obrany. Příklady popisují standardní baseball.${item ? ' Pro '+item.id+' zohledni také pravidla běhu a ukončení rozehry uvedená výše.' : ''}</p>
-    <div class="plays">${situations.map((play,i)=>`<figure><h4>${play.title}</h4>${drawPlay(play,i)}<figcaption><p>${play.start}</p><p>${play.result}</p></figcaption></figure>`).join('')}</div></section>`;
+    ${renderSituations(category)}`;
   document.querySelectorAll('#guide-body .pdf-reader').forEach(reader => {
     reader.addEventListener('toggle', () => {
       if (!reader.open || reader.querySelector('iframe')) return;
